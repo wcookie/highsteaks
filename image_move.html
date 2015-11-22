@@ -1,0 +1,31 @@
+<canvas id="ctx" width="500" height="500" style="border:1px solid #;"></canvas>
+
+<script>
+var ctx = document.getElementById("ctx").getContext("2d")
+var x = 50;
+var y = 50;
+var m = 50;
+var count = 0;
+var spdX = 10;
+var spdY = 10;
+
+var pmimg = new Image();  
+pmimg.src = "images/plogo_f.png";
+pmimg.onload = function(){
+	ctx.drawImage(pmimg,x,y);
+	}
+
+function update(){
+	ctx.drawImage(pmimg,x+=spdX,y+=spdY);
+	count++;
+}
+
+var done = false;
+
+function draw(){
+	while (!done){
+		update();
+		if (count > m) done = true;
+	}
+}
+</script>

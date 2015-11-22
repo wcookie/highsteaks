@@ -1,0 +1,206 @@
+ <!DOCTYPE html>
+<html>
+
+   <head>
+      <title> Postmates Game </title>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+   </head>
+
+   <body>
+       <div class="page-header text-center">
+           <h1>Postmates game</h1>
+       </div>
+
+       <div style="text-align:right;">
+         <button onclick="main_loop()" class="btn" id="start_game">start game</button>
+
+       </div>
+      <!-- The canvas for the panning background -->
+      <canvas id="game" width="800" height="400">
+         Your browser does not support canvas. Please try again with a different browser.
+      </canvas>
+      <script type ="text/javascript"> 
+	  
+	  /*
+	  Things to do:
+	  -Make hitboxes more accurate, fix hasCollided function
+	  -Different enemies? ie choose between burritos, pizza, etc.
+	  -Better game introduction, start and end game mechanics
+	  -add background image, not just white
+	  -choose font
+	  -Coordinate playing with 2 people
+	  -moar bootstrap
+	  */
+
+        var canvas = document.getElementById('game');
+        var ctx = canvas.getContext("2d");
+
+        var gameover = false;
+        var movespeed = 10;
+		var score = 0;
+
+        var moving_down = false;
+        var moving_up = false;
+		
+		var player_height = 120; //it's actually height = 136, width = 191. We need a tight image crop. on the burritos too.
+		var player_width = 180;
+		
+		var max_speed = 7;
+		var min_speed = 2;
+
+        var player = {
+           x_pos: 25,
+           y_pos: 200
+        };
+
+        var Enemy = function(x_pos, y_pos, enemy_speed) {
+           this.x_pos = x_pos;
+           this.y_pos = y_pos;
+           this.enemy_speed = enemy_speed;
+        };
+
+        Enemy.prototype.hasCollided = function() {
+           if ((this.x_pos <= 25+player_width && this.x_pos>=25) && (this.y_pos >= player.y_pos && this.y_pos <= (player.y_pos + player_height))) {
+              return true;
+           } else {
+              return false;
+           }
+        };
+
+        var enemy1 = new Enemy(800, Math.random() * (400 - 0) + 0, Math.random() * (max_speed - min_speed) + min_speed);
+        var enemy2 = new Enemy(800, Math.random() * (400 - 0) + 0, Math.random() * (max_speed - min_speed) + min_speed);
+        var enemy3 = new Enemy(800, Math.random() * (400 - 0) + 0, Math.random() * (max_speed - min_speed) + min_speed);
+
+        // checks for key press
+        document.addEventListener("keydown", function(key) {
+           //up key pressed
+           if (key.keyCode == 40) {
+              moving_up = true;
+           }
+           if (key.keyCode == 38) {
+              moving_down = true;
+           }
+        }, false);
+
+        // checks if up or down arrow keys have been pressed
+        document.addEventListener("keyup", function(key) {
+           if (key.keyCode == 40) {
+              moving_up = false;
+           }
+           if (key.keyCode == 38) {
+              moving_down = false;
+           }
+        }, false);
+
+        // draw the player, enemies, and score
+        var draw = function() {
+
+           ctx.fillStyle = "#FFFFFF";
+           ctx.fillRect(0, 0, 800, 800);
+		   
+		   var pimg = new Image();  
+		   if(moving_up){
+				pimg.src = "images/plogo_u1.png";
+		   }
+		   else if(moving_down){
+				pimg.src = "images/plogo_d1.png"
+		   }
+		   else{
+				pimg.src = "images/plogo_f.png"
+		   }
+				ctx.drawImage(pimg,player.x_pos,player.y_pos);
+		   
+		   //replaced by postmates image
+           //ctx.fillStyle = "#FFFFFF";
+           //ctx.fillRect(player.x_pos, player.y_pos, 35, 70);
+		  
+		   //old enemies
+           /*ctx.fillRect(enemy1.x_pos, enemy1.y_pos, 10, 10);
+           ctx.fillRect(enemy2.x_pos, enemy2.y_pos, 10, 10);
+           ctx.fillRect(enemy3.x_pos, enemy3.y_pos, 10, 10);*/
+		   
+		   var e1_img = new Image();
+		   e1_img.src = "images/burrito.png"
+		   ctx.drawImage(e1_img,enemy1.x_pos, enemy1.y_pos);
+
+		   var e2_img = new Image();
+		   e2_img.src = "images/burrito.png"
+		   ctx.drawImage(e2_img,enemy2.x_pos, enemy2.y_pos);
+		   var e3_img = new Image();
+		   e3_img.src = "images/burrito.png"
+		   ctx.drawImage(e3_img,enemy3.x_pos, enemy3.y_pos);
+		   
+		   ctx.font = "25px Arial"
+		   ctx.fillStyle = "#000000";
+		   ctx.fillText("Score: " + score, 400, 50);
+		   
+		   
+		   //random color. the function is from http://paulirish.com/2009/random-hex-color-code-snippets/
+           ctx.fillStyle = '#' + (function lol(m, s, c) {
+				return s[m.floor(m.random() * s.length)] + (c && lol(m, s, c - 1));
+           })(Math, '0123456789ABCDEF', 4);
+		   
+           ctx.font="100px Arial";
+           if(gameover){
+            ctx.fillText("GAME OVER", 150, 240);
+         }
+
+        };
+
+        // this function is repeatedly called on, provides logic for the game
+        var main_loop = function() {
+		
+		   if(!gameover) score += 10;
+		   
+           enemy1.x_pos = enemy1.x_pos - enemy1.enemy_speed;
+           enemy2.x_pos = enemy2.x_pos - enemy2.enemy_speed;
+           enemy3.x_pos = enemy3.x_pos - enemy3.enemy_speed;
+
+           if (enemy1.hasCollided() || enemy2.hasCollided() || enemy3.hasCollided()) {
+              gameover = true;
+              enemy1.enemy_speed = 0;
+              enemy2.enemy_speed = 0;
+              enemy3.enemy_speed = 0;
+           }
+
+
+           if (enemy1.x_pos <= 0) {
+              enemy1.x_pos = 800;
+
+              enemy1.y_pos = Math.random() * (400 - 0) + 0; // (max-min) + min
+              enemy1.enemy_speed = Math.random() * (max_speed - min_speed) + min_speed;
+           }
+
+           if (enemy2.x_pos <= 0) {
+              enemy2.x_pos = 800;
+
+              enemy2.y_pos = Math.random() * (400 - 0) + 0; // (max-min) + min
+              enemy2.enemy_speed = Math.random() * (max_speed - min_speed) + min_speed;
+           }
+
+           if (enemy3.x_pos <= 0) {
+              enemy3.x_pos = 800;
+
+              enemy3.y_pos = Math.random() * (400 - 0) + 0; // (max-min) + min
+              enemy3.enemy_speed = Math.random() * (max_speed - min_speed) + min_speed;
+           }
+		   
+		   
+
+           if (moving_down && !(player.y_pos <= 0)) {
+              player.y_pos = player.y_pos - movespeed;
+           }
+           if (moving_up && !(player.y_pos >= 400 - player_height)) {
+              player.y_pos = player.y_pos + movespeed;
+           }
+           draw();
+           window.requestAnimationFrame(main_loop);
+        };
+       //main_loop();      
+       </script>
+
+
+   </body>
+</html>
