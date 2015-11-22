@@ -1,0 +1,15 @@
+<html>
+
+<script type="javascript">
+var Postmates = require('postmates');
+var postmates = new Postmates('cus_K5vDOomds3hWb-', '2162a6d6-0229-4839-98d5-b8ae3c7d6eb5');
+var delivery = {
+  pickup_address: "20 McAllister St, San Francisco, CA",
+  dropoff_address: "101 Market St, San Francisco, CA"
+};
+ 
+postmates.quote(delivery, function(err, res) {
+  console.log(res.body.fee); // 799 
+});
+</script>
+</html>

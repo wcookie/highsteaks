@@ -6,11 +6,12 @@
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+   <script src="postmatesclient.js"></script>
    </head>
 
    <body>
        <div class="page-header text-center">
-           <h1>Postmates game</h1>
+           <h1>High Steaks: A Postmates Adventure</h1>
        </div>
 
        <div style="text-align:right;">
@@ -195,12 +196,21 @@
            if (moving_up && !(player.y_pos >= 400 - player_height)) {
               player.y_pos = player.y_pos + movespeed;
            }
+            if (score>10000)
+        {
+          //alert("YOU WIN!")
+          makeOrder();  
+          
+        }
+           
            draw();
            window.requestAnimationFrame(main_loop);
         };
+
        //main_loop();      
        </script>
 
-
+        
    </body>
+
 </html>
